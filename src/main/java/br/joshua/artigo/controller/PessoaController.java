@@ -5,10 +5,13 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.joshua.artigo.model.entity.Pessoa;
@@ -21,60 +24,87 @@ public class PessoaController {
 	@Autowired
 	private PessoaRepository pessoaRepository;
 
-	@RequestMapping(path = "/listar", method = RequestMethod.GET)
-	public ResponseEntity<List<Pessoa>> listar() {
+	@GetMapping(path = "/listar")
+	public ResponseEntity<Object> listar() {
 
-		List<Pessoa> lista = pessoaRepository.findAll();
+		try {
 
-		return ResponseEntity.ok(lista);
-	}
+			List<Pessoa> lista = pessoaRepository.findAll();
 
-	@RequestMapping(path = "/criar", method = RequestMethod.POST)
-	public ResponseEntity<Pessoa> criar(@RequestBody Pessoa pessoa) {
+			return ResponseEntity.ok(lista);
 
-		if (pessoa == null) {
-			new ResponseEntity<Pessoa>(HttpStatus.NOT_FOUND);
+		} catch (Exception e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 		}
 
-		pessoa = pessoaRepository.save(pessoa);
-
-		return new ResponseEntity<Pessoa>(pessoa, HttpStatus.CREATED);
 	}
 
-	@RequestMapping(path = "/atualizar", method = RequestMethod.PUT)
-	public ResponseEntity<Pessoa> atualizar(@RequestBody Pessoa pessoa) {
+	@PostMapping(path = "/criar")
+	public ResponseEntity<Object> criar(@RequestBody Pessoa pessoa) {
 
-		if (pessoa == null || pessoa.getId() == null) {
-			new ResponseEntity<Pessoa>(HttpStatus.NOT_FOUND);
+		try {
+			if (pessoa == null) {
+				new ResponseEntity<Pessoa>(HttpStatus.NOT_FOUND);
+			}
+
+			pessoa = pessoaRepository.save(pessoa);
+
+			return new ResponseEntity<Object>(pessoa, HttpStatus.CREATED);
+		} catch (Exception e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 		}
 
-		pessoa = pessoaRepository.save(pessoa);
-
-		return new ResponseEntity<Pessoa>(pessoa, HttpStatus.OK);
 	}
 
-	@RequestMapping(path = "/listar/{id}", method = RequestMethod.GET)
-	public ResponseEntity<Pessoa> listarPessoaPorId(@PathVariable("id") Long id) {
+	@PutMapping(path = "/atualizar")
+	public ResponseEntity<Object> atualizar(@RequestBody Pessoa pessoa) {
 
-		if (id == null) {
-			new ResponseEntity<Pessoa>(HttpStatus.NOT_FOUND);
+		try {
+			if (pessoa == null || pessoa.getId() == null) {
+				new ResponseEntity<Pessoa>(HttpStatus.NOT_FOUND);
+			}
+
+			pessoa = pessoaRepository.save(pessoa);
+
+			return new ResponseEntity<Object>(pessoa, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 		}
 
-		Pessoa pessoa = pessoaRepository.getOne(id);
-
-		return ResponseEntity.ok(pessoa);
 	}
 
-	@RequestMapping(path = "/excluir/{id}", method = RequestMethod.DELETE)
-	public ResponseEntity<Void> excluir(@PathVariable("id") Long id) {
+	@GetMapping(path = "/listar/{id}")
+	public ResponseEntity<Object> listarPorId(@PathVariable("id") Long id) {
 
-		if (id == null) {
-			new ResponseEntity<Pessoa>(HttpStatus.NOT_FOUND);
+		try {
+			if (id == null) {
+				new ResponseEntity<Pessoa>(HttpStatus.NOT_FOUND);
+			}
+
+			Pessoa pessoa = pessoaRepository.getOne(id);
+
+			return ResponseEntity.ok(pessoa);
+		} catch (Exception e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 		}
 
-		pessoaRepository.deleteById(id);
+	}
 
-		return new ResponseEntity<Void>(HttpStatus.OK);
+	@DeleteMapping(path = "/excluir/{id}")
+	public ResponseEntity<Object> excluir(@PathVariable("id") Long id) {
+
+		try {
+			if (id == null) {
+				new ResponseEntity<Pessoa>(HttpStatus.NOT_FOUND);
+			}
+
+			pessoaRepository.deleteById(id);
+
+			return new ResponseEntity<Object>(HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		}
+
 	}
 
 }
